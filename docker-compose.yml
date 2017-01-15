@@ -1,0 +1,61 @@
+version: '2'
+services:
+    reto1db:
+        container_name: "reto1db"
+        image: "reto1db"
+        environment:
+        - MYSQL_ROOT_PASSWORD=passwd
+        ports:
+        - "3306:3306"
+        cpuset: "0"
+    reto1server:
+        container_name: "reto1server"
+        image: "reto1server"
+        depends_on: 
+        - "reto1db"
+        ports:
+        - "80"
+        links:
+        - "reto1db"
+        volumes:
+        - /home/gabri/RETO2_v2:/shared 
+        cpuset: "0"
+    reto1load:
+        working_dir: /home/gabri/RETO2_v2/load
+        container_name: "reto1load"
+        image: "reto1load"
+        depends_on: 
+        - "reto1server"
+        ports:
+        - "8091:8091"
+        links:
+        - "reto1server"
+    retoelasticsearch:
+        container_name: "retoelasticsearch"
+        image: "elasticsearch"
+        ports:
+        - "9200:9200"
+        - "9300:9300"
+        
+    retologstash:
+        container_name: "retologstash"
+        image: "retologstash"
+        depends_on: 
+        - "retoelasticsearch"
+        links:
+        - "retoelasticsearch"
+        volumes:
+        - /home/gabri/RETO2_v2:/shared
+    kibana:
+        container_name: "kibana"
+        image: "kibana"
+        depends_on: 
+        - "retoelasticsearch"
+        ports:
+        - "5601:5601"
+        links:
+        - "retoelasticsearch:elasticsearch"
+        
+        
+        
+        
